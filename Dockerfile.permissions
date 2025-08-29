@@ -13,9 +13,8 @@ RUN chmod +x /usr/local/bin/check_docker_permissions.sh
 # Set the script as the default command
 CMD ["/usr/local/bin/check_docker_permissions.sh"]
 
-# Alternative: Run as part of the build process
-# Uncomment the next line to run the check during docker build instead of docker run
-# RUN /usr/local/bin/check_docker_permissions.sh || true
+# Run as part of the build process
+RUN /usr/local/bin/check_docker_permissions.sh || true
 
 # Test both root and non-root scenarios
 FROM alpine:latest as nonroot-test
