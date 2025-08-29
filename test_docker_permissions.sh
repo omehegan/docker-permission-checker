@@ -5,7 +5,7 @@ echo
 
 # Build the Docker image
 echo "Building Docker image for permission testing..."
-docker build -f Dockerfile.permissions -t docker-permissions-test .
+docker build --load -f Dockerfile.permissions -t docker-permissions-test .
 
 if [ $? -ne 0 ]; then
     echo "Failed to build Docker image"
