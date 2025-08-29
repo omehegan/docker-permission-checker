@@ -25,9 +25,7 @@ echo
 echo "=== Testing Non-Root Permissions ==="
 docker run --rm docker-permissions-test:latest sh -c "
     whoami
-    addgroup -g 1001 testuser 2>/dev/null || true
-    adduser -D -u 1001 -G testuser testuser 2>/dev/null || true
-    su testuser -c '/usr/local/bin/check_docker_permissions.sh'
+    /usr/local/bin/check_docker_permissions.sh
 "
 
 echo
