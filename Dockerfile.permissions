@@ -1,0 +1,35 @@
+# Dockerfile to test Docker build permissions and rootless status
+FROM alpine:latest
+
+# Install required tools
+RUN apk add --no-cache bash procps coreutils
+
+# Copy the permission check script
+COPY check_docker_permissions.sh /usr/local/bin/check_docker_permissions.sh
+
+# Make the script executable
+RUN chmod +x /usr/local/bin/check_docker_permissions.sh
+
+# Set the script as the default command
+CMD ["/usr/local/bin/check_docker_permissions.sh"]
+
+# Alternative: Run as part of the build process
+# Uncomment the next line to run the check during docker build instead of docker run
+# RUN /usr/local/bin/check_docker_permissions.sh || true
+
+# Test both root and non-root scenarios
+FROM alpine:latest as nonroot-test
+
+RUN apk add --no-cache bash procps coreutils
+
+# Create a non-root user
+RUN addgroup -g 1001 testuser && \
+    adduser -D -u 1001 -G testuser testuser
+
+COPY check_docker_permissions.sh /usr/local/bin/check_docker_permissions.sh
+RUN chmod +x /usr/local/bin/check_docker_permissions.sh
+
+# Switch to non-root user
+USER testuser
+
+CMD ["/usr/local/bin/check_docker_permissions.sh"]
