@@ -6,6 +6,11 @@ steps:
     key: "remote-buildx"
     command: |
       echo "=== Testing Docker Permissions with Remote Buildx ==="
+      echo "Host environment:"
+      uname -a
+      whoami
+      id
+      echo
       echo "Docker version:"
       docker version
       echo
@@ -17,13 +22,8 @@ steps:
       echo
       echo "=== Running permission tests ==="
       ./test_docker_permissions.sh
-    plugins:
-      - docker#v5.11.0:
-          image: "docker:latest"
-          volumes:
-            - "/var/run/docker.sock:/var/run/docker.sock"
-          environment:
-            - "DOCKER_BUILDKIT=1"
+    env:
+      DOCKER_BUILDKIT: "1"
     retry:
       automatic:
         - exit_status: "*"
@@ -33,6 +33,11 @@ steps:
     key: "local-buildx"
     command: |
       echo "=== Testing Docker Permissions with Local Buildx ==="
+      echo "Host environment:"
+      uname -a
+      whoami
+      id
+      echo
       echo "Docker version:"
       docker version
       echo
@@ -49,13 +54,8 @@ steps:
       ./test_docker_permissions.sh
     agents:
       namespace-experiments: "docker.builder=local"
-    plugins:
-      - docker#v5.11.0:
-          image: "docker:latest"
-          volumes:
-            - "/var/run/docker.sock:/var/run/docker.sock"
-          environment:
-            - "DOCKER_BUILDKIT=1"
+    env:
+      DOCKER_BUILDKIT: "1"
     retry:
       automatic:
         - exit_status: "*"
@@ -65,6 +65,11 @@ steps:
     key: "legacy-docker"
     command: |
       echo "=== Testing Docker Permissions without Buildkit ==="
+      echo "Host environment:"
+      uname -a
+      whoami
+      id
+      echo
       echo "DOCKER_BUILDKIT is set to: $DOCKER_BUILDKIT"
       echo "Docker version:"
       docker version
@@ -73,13 +78,6 @@ steps:
       ./test_docker_permissions.sh
     env:
       DOCKER_BUILDKIT: "0"
-    plugins:
-      - docker#v5.11.0:
-          image: "docker:latest"
-          volumes:
-            - "/var/run/docker.sock:/var/run/docker.sock"
-          environment:
-            - "DOCKER_BUILDKIT=0"
     retry:
       automatic:
         - exit_status: "*"
@@ -89,6 +87,11 @@ steps:
     key: "multi-platform"
     command: |
       echo "=== Testing Docker Permissions with Multi-Platform Buildx ==="
+      echo "Host environment:"
+      uname -a
+      whoami
+      id
+      echo
       echo "Docker buildx version:"
       docker buildx version
       echo
@@ -100,13 +103,8 @@ steps:
       echo
       echo "=== Running permission tests ==="
       ./test_docker_permissions.sh
-    plugins:
-      - docker#v5.11.0:
-          image: "docker:latest"
-          volumes:
-            - "/var/run/docker.sock:/var/run/docker.sock"
-          environment:
-            - "DOCKER_BUILDKIT=1"
+    env:
+      DOCKER_BUILDKIT: "1"
     retry:
       automatic:
         - exit_status: "*"

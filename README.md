@@ -46,12 +46,14 @@ The `check_docker_permissions.sh` script returns:
 
 ## Buildkite Pipeline
 
-The repository includes a Buildkite pipeline (`.buildkite/pipeline.yml`) that tests Docker permissions across different scenarios:
+The repository includes a Buildkite pipeline (`.buildkite/pipeline.yml`) that tests Docker permissions across different scenarios running directly on the host VM:
 
 - **Remote Buildx**: Standard Docker buildx with remote builder
 - **Local Buildx**: Docker buildx with local builder (requires agents with `namespace-experiments: "docker.builder=local"`)
 - **Legacy Docker**: Traditional Docker without Buildkit (`DOCKER_BUILDKIT=0`)
 - **Multi-Platform**: Buildx with multi-architecture support
+
+All tests run natively on the Buildkite agent host (not in containers) to accurately test Docker permission scenarios.
 
 ### Running the Pipeline
 ```bash
