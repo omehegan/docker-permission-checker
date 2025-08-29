@@ -47,9 +47,6 @@ steps:
       echo "Current buildx builder:"
       docker buildx ls
       echo
-      echo "Creating/using local builder:"
-      docker buildx create --name local-builder --driver docker-container --use 2>/dev/null || docker buildx use local-builder
-      echo
       echo "=== Running permission tests ==="
       ./test_docker_permissions.sh
     agents:
