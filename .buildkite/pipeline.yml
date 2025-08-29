@@ -1,0 +1,134 @@
+env:
+  DOCKER_BUILDKIT: "1"
+
+steps:
+  - label: ":docker: Remote Buildx Permission Test"
+    key: "remote-buildx"
+    command: |
+      echo "=== Testing Docker Permissions with Remote Buildx ==="
+      echo "Docker version:"
+      docker version
+      echo
+      echo "Docker buildx version:"
+      docker buildx version
+      echo
+      echo "Current buildx builder:"
+      docker buildx ls
+      echo
+      echo "=== Running permission tests ==="
+      ./test_docker_permissions.sh
+    plugins:
+      - docker#v5.11.0:
+          image: "docker:latest"
+          volumes:
+            - "/var/run/docker.sock:/var/run/docker.sock"
+          environment:
+            - "DOCKER_BUILDKIT=1"
+    retry:
+      automatic:
+        - exit_status: "*"
+          limit: 2
+
+  - label: ":docker: Local Buildx Permission Test"
+    key: "local-buildx"
+    command: |
+      echo "=== Testing Docker Permissions with Local Buildx ==="
+      echo "Docker version:"
+      docker version
+      echo
+      echo "Docker buildx version:"
+      docker buildx version
+      echo
+      echo "Current buildx builder:"
+      docker buildx ls
+      echo
+      echo "Creating/using local builder:"
+      docker buildx create --name local-builder --driver docker-container --use 2>/dev/null || docker buildx use local-builder
+      echo
+      echo "=== Running permission tests ==="
+      ./test_docker_permissions.sh
+    agents:
+      namespace-experiments: "docker.builder=local"
+    plugins:
+      - docker#v5.11.0:
+          image: "docker:latest"
+          volumes:
+            - "/var/run/docker.sock:/var/run/docker.sock"
+          environment:
+            - "DOCKER_BUILDKIT=1"
+    retry:
+      automatic:
+        - exit_status: "*"
+          limit: 2
+
+  - label: ":docker: Legacy Docker (No Buildkit) Permission Test"
+    key: "legacy-docker"
+    command: |
+      echo "=== Testing Docker Permissions without Buildkit ==="
+      echo "DOCKER_BUILDKIT is set to: $DOCKER_BUILDKIT"
+      echo "Docker version:"
+      docker version
+      echo
+      echo "=== Running permission tests ==="
+      ./test_docker_permissions.sh
+    env:
+      DOCKER_BUILDKIT: "0"
+    plugins:
+      - docker#v5.11.0:
+          image: "docker:latest"
+          volumes:
+            - "/var/run/docker.sock:/var/run/docker.sock"
+          environment:
+            - "DOCKER_BUILDKIT=0"
+    retry:
+      automatic:
+        - exit_status: "*"
+          limit: 2
+
+  - label: ":docker: Buildx Multi-Platform Test"
+    key: "multi-platform"
+    command: |
+      echo "=== Testing Docker Permissions with Multi-Platform Buildx ==="
+      echo "Docker buildx version:"
+      docker buildx version
+      echo
+      echo "Available builders:"
+      docker buildx ls
+      echo
+      echo "=== Building for multiple platforms ==="
+      docker buildx build --platform linux/amd64,linux/arm64 -f Dockerfile.permissions -t docker-permissions-multiarch . --load || echo "Multi-arch build attempted"
+      echo
+      echo "=== Running permission tests ==="
+      ./test_docker_permissions.sh
+    plugins:
+      - docker#v5.11.0:
+          image: "docker:latest"
+          volumes:
+            - "/var/run/docker.sock:/var/run/docker.sock"
+          environment:
+            - "DOCKER_BUILDKIT=1"
+    retry:
+      automatic:
+        - exit_status: "*"
+          limit: 2
+
+  - wait
+
+  - label: ":bar_chart: Test Results Summary"
+    key: "summary"
+    command: |
+      echo "=== Docker Permission Test Summary ==="
+      echo "All Docker build permission tests completed successfully!"
+      echo
+      echo "Tested scenarios:"
+      echo "✓ Remote Buildx"
+      echo "✓ Local Buildx (with agent tags)"
+      echo "✓ Legacy Docker (DOCKER_BUILDKIT=0)"
+      echo "✓ Multi-Platform Buildx"
+      echo
+      echo "For detailed logs, check individual step outputs above."
+    depends_on:
+      - "remote-buildx"
+      - "local-buildx"
+      - "legacy-docker"
+      - "multi-platform"

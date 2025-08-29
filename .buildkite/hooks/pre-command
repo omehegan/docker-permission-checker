@@ -1,0 +1,23 @@
+#!/bin/bash
+
+set -euo pipefail
+
+echo "=== Pre-command Hook ==="
+echo "Current working directory: $(pwd)"
+echo "Available files:"
+ls -la
+
+# Ensure scripts are executable
+chmod +x check_docker_permissions.sh test_docker_permissions.sh
+
+echo "=== Environment Check ==="
+echo "DOCKER_BUILDKIT: ${DOCKER_BUILDKIT:-not set}"
+echo "BUILDKITE_AGENT_META_DATA: ${BUILDKITE_AGENT_META_DATA:-not set}"
+
+# Check if Docker is available
+if command -v docker >/dev/null 2>&1; then
+    echo "Docker is available"
+    docker --version
+else
+    echo "Docker is not available"
+fi

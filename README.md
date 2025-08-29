@@ -44,6 +44,21 @@ The `check_docker_permissions.sh` script returns:
 - `0` if running as root
 - `1` if running as non-root
 
+## Buildkite Pipeline
+
+The repository includes a Buildkite pipeline (`.buildkite/pipeline.yml`) that tests Docker permissions across different scenarios:
+
+- **Remote Buildx**: Standard Docker buildx with remote builder
+- **Local Buildx**: Docker buildx with local builder (requires agents with `namespace-experiments: "docker.builder=local"`)
+- **Legacy Docker**: Traditional Docker without Buildkit (`DOCKER_BUILDKIT=0`)
+- **Multi-Platform**: Buildx with multi-architecture support
+
+### Running the Pipeline
+```bash
+# Upload and trigger the pipeline
+buildkite-agent pipeline upload
+```
+
 ## Examples
 
 ### Testing with Docker Socket
